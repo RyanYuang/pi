@@ -190,6 +190,8 @@ import {
 import { InteractiveThemeController } from "./theme/theme-controller.ts";
 import { createInteractiveTui, createInteractiveTuiReference } from "./tui-renderer.ts";
 
+import { debugInfo as debug_i } from "../../utils/debug.ts";
+import { Recorder } from "@earendil-works/voice";
 export { createInteractiveTui, createInteractiveTuiReference } from "./tui-renderer.ts";
 
 /** Interface for components that can be expanded/collapsed */
@@ -3221,6 +3223,11 @@ export class InteractiveMode {
 				await this.shutdown();
 				return;
 			}
+			if(text === "/record") {
+				this.handleRecordingCommand();
+				this.editor.setText("");
+				return;
+			}
 
 			// Handle bash command (! for normal, !! for excluded from context)
 			if (text.startsWith("!")) {
@@ -3266,10 +3273,12 @@ export class InteractiveMode {
 			// Normal message submission
 			// First, move any pending bash components to chat
 			this.flushPendingBashComponents();
-
+			debug_i("Normal message submission");
 			if (this.onInputCallback) {
+				debug_i("onInputCallback");
 				this.onInputCallback(text);
 			} else {
+				debug_i("pendingUserInputs");
 				this.pendingUserInputs.push(text);
 			}
 			this.editor.addToHistory?.(text);
@@ -4096,9 +4105,10 @@ export class InteractiveMode {
 		if (queuedInput !== undefined) {
 			return queuedInput;
 		}
-
+		
 		return new Promise((resolve) => {
 			this.onInputCallback = (text: string) => {
+				debug_i("getUserInput");
 				this.onInputCallback = undefined;
 				resolve(text);
 			};
@@ -6714,6 +6724,24 @@ export class InteractiveMode {
 		this.chatContainer.addChild(new EarendilAnnouncementComponent());
 		this.ui.requestRender();
 	}
+
+	private handleRecordingCommand(): void {
+		const recorder = Recorder.getInstance();
+		if (recorder.getProcessState() === "stopped") {
+			this.chatContainer.addChild(new Spacer(1));
+			this.chatContainer.addChild(new Text("Starting recording...", 1, 0));
+			this.ui.requestRender();
+			recorder.start((chunk) => {
+				debug_i(`audio chunk bytes=${chunk.byteLength}`);
+			});
+		} else {
+			this.chatContainer.addChild(new Spacer(1));
+			this.chatContainer.addChild(new Text("Stopping recording...", 1, 0));
+			this.ui.requestRender();
+			recorder.stop();
+		}
+	}
+
 
 	private handleDaxnuts(): void {
 		this.chatContainer.addChild(new Spacer(1));

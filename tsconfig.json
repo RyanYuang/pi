@@ -39,6 +39,7 @@
 				"./packages/coding-agent/src/experimental/plugin.ts"
 			],
 			"@earendil-works/pi-coding-agent/hooks": ["./packages/coding-agent/src/core/hooks/index.ts"],
+			"@earendil-works/pi-coding-agent/utils/debug": ["./packages/coding-agent/src/utils/debug.ts"],
 			"@earendil-works/pi-coding-agent/*": ["./packages/coding-agent/src/*"],
 			"@earendil-works/pi-protocol": ["./packages/protocol/src/index.ts"],
 			"@earendil-works/pi-protocol/*": ["./packages/protocol/src/*"],
@@ -52,7 +53,8 @@
 			"@earendil-works/pi-tui": ["./packages/tui/src/index.ts"],
 			"@earendil-works/pi-tui/*": ["./packages/tui/src/*"],
 			"@earendil-works/pi-agent-old": ["./packages/agent-old/src/index.ts"],
-			"@earendil-works/pi-agent-old/*": ["./packages/agent-old/src/*"]
+			"@earendil-works/pi-agent-old/*": ["./packages/agent-old/src/*"],
+			"@earendil-works/voice": ["./packages/voice/src/index.ts"]
 		}
 	},
 	"include": ["scripts/model-catalog-protocol.ts", "scripts/model-catalog-protocol.test.ts", "packages/*/src/**/*", "packages/*/test/**/*", "packages/session-backends/*/src/**/*", "packages/session-backends/*/test/**/*", "packages/coding-agent/examples/**/*"],
