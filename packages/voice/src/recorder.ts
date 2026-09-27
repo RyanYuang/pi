@@ -30,11 +30,13 @@ export class Recorder implements recorder {
 		}
 
 		this.onAudio = onAudio;
-		debugInfo("Starting recorder (raw s16le PCM on stdout)");
-		// Write raw PCM to stdout. -t raw is the SoX file type, not a duration.
+		debugInfo("Starting recorder (raw s16le PCM @16kHz on stdout)");
+		// Open the mic at its native rate, then resample to 16 kHz for Doubao uplink.
+		// Output `-r 16000` plus the `rate` effect avoids the macOS footgun where SoX
+		// falls back to 24 kHz capture but still labels the stream as 16 kHz.
 		this.process = spawn(
 			"rec",
-			["-q", "-t", "raw", "-r", "16000", "-c", "1", "-b", "16", "-e", "signed-integer", "-"],
+			["-q", "-c", "1", "-b", "16", "-e", "signed-integer", "-t", "raw", "-r", "16000", "-", "rate", "16000"],
 			{ stdio: ["ignore", "pipe", "pipe"] },
 		);
 

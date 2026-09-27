@@ -12,6 +12,7 @@ import {
 	type SessionExtension,
 	serializeClientEvent,
 } from "./doubao-realtime-protocol.ts";
+import { debugInfo } from "@earendil-works/pi-coding-agent/utils/debug";
 
 /** Convert a WebSocket raw data to a UTF-8 string. */
 function rawDataToUtf8(data: RawData): string {
@@ -70,6 +71,7 @@ export class DoubaoP2PConversation {
 		});
 		// 当 WebSocket 连接打开时，发送会话创建事件
 		this.ws.on("open", () => {
+			debugInfo("WebSocket connection opened");
 			this.onOpen();
 			this.send(
 				createSessionCreateEvent({
@@ -81,6 +83,7 @@ export class DoubaoP2PConversation {
 		});
 		// 当收到 WebSocket 消息时，解析服务端事件
 		this.ws.on("message", (data, isBinary) => {
+			debugInfo(`WebSocket message received: ${data}`);
 			if (isBinary) {
 				this.onError(new Error("Unexpected binary WebSocket frame; duplex protocol uses JSON text only"));
 				return;
@@ -94,10 +97,12 @@ export class DoubaoP2PConversation {
 		});
 		// 当 WebSocket 连接错误时，处理错误
 		this.ws.on("error", (error) => {
+			debugInfo(`WebSocket connection error: ${error}`);
 			this.onError(error);
 		});
 		// 当 WebSocket 连接关闭时，清理连接状态
 		this.ws.on("close", () => {
+			debugInfo("WebSocket connection closed");
 			this.ws = undefined;
 			this.onClose();
 		});
@@ -105,13 +110,19 @@ export class DoubaoP2PConversation {
 
 	/** Append one PCM chunk as Base64 `input_audio_buffer.append`. */
 	appendAudio(chunk: Buffer): void {
+		if (!this.isConnected()) return;
 		this.send(createInputAudioAppendEvent(encodePcmChunkToBase64(chunk), randomUUID()));
+	}
+
+	isConnected(): boolean {
+		return this.ws?.readyState === WebSocket.OPEN;
 	}
 
 	send(event: ClientEvent): void {
 		const ws = this.ws;
 		if (!ws || ws.readyState !== WebSocket.OPEN) {
-			throw new Error("DoubaoP2PConversation is not connected");
+			debugInfo(`Dropping client event (ws not open): ${event.type}`);
+			return;
 		}
 		ws.send(serializeClientEvent(event));
 	}

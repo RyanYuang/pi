@@ -191,7 +191,7 @@ import { InteractiveThemeController } from "./theme/theme-controller.ts";
 import { createInteractiveTui, createInteractiveTuiReference } from "./tui-renderer.ts";
 
 import { debugInfo as debug_i } from "../../utils/debug.ts";
-import { Recorder } from "@earendil-works/voice";
+import { Recorder, RealtimeConversation } from "@earendil-works/voice";
 export { createInteractiveTui, createInteractiveTuiReference } from "./tui-renderer.ts";
 
 /** Interface for components that can be expanded/collapsed */
@@ -6726,20 +6726,24 @@ export class InteractiveMode {
 	}
 
 	private handleRecordingCommand(): void {
-		const recorder = Recorder.getInstance();
-		if (recorder.getProcessState() === "stopped") {
-			this.chatContainer.addChild(new Spacer(1));
-			this.chatContainer.addChild(new Text("Starting recording...", 1, 0));
-			this.ui.requestRender();
-			recorder.start((chunk) => {
-				debug_i(`audio chunk bytes=${chunk.byteLength}`);
-			});
-		} else {
-			this.chatContainer.addChild(new Spacer(1));
-			this.chatContainer.addChild(new Text("Stopping recording...", 1, 0));
-			this.ui.requestRender();
-			recorder.stop();
-		}
+		// 用于测试录音
+		// const recorder = Recorder.getInstance();
+		// if (recorder.getProcessState() === "stopped") {
+		// 	this.chatContainer.addChild(new Spacer(1));
+		// 	this.chatContainer.addChild(new Text("Starting recording...", 1, 0));
+		// 	this.ui.requestRender();
+		// 	recorder.start((chunk) => {
+		// 		debug_i(`audio chunk bytes=${chunk.byteLength}`);
+		// 	});
+		// } else {
+		// 	this.chatContainer.addChild(new Spacer(1));
+		// 	this.chatContainer.addChild(new Text("Stopping recording...", 1, 0));
+		// 	this.ui.requestRender();
+		// 	recorder.stop();
+		// }
+		// 用于测试实时通话
+		const realtimeConversation = RealtimeConversation.getInstance();
+		realtimeConversation.start();
 	}
 
 
